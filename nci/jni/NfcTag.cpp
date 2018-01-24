@@ -535,7 +535,7 @@ void NfcTag::discoverTechnologies (tNFA_DISC_RESULT& discoveryData)
     }
 
     mNumTechList++;
-    if (discovery_ntf.more == FALSE)
+    if (discovery_ntf.more != NCI_DISCOVER_NTF_MORE)
     {
         for (int i=0; i < mNumTechList; i++)
         {
@@ -1422,6 +1422,9 @@ void NfcTag::connectionEventHandler (UINT8 event, tNFA_CONN_EVT_DATA* data)
         {
             SyncEventGuard g (mReadCompleteEvent);
             mReadCompletedStatus = data->status;
+            mNdefDetectionTimedOut = data->status != NFA_STATUS_OK;
+            if (mNdefDetectionTimedOut)
+                ALOGE ("%s: NDEF detection timed out", fn);
             mReadCompleteEvent.notifyOne ();
         }
         break;
