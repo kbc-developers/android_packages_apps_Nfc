@@ -29,6 +29,7 @@ import android.nfc.tech.TagTechnology;
 import android.util.Log;
 import com.android.nfc.NfcDiscoveryParameters;
 
+import java.io.FileDescriptor;
 import java.io.File;
 
 /**
@@ -105,6 +106,17 @@ public class NativeNfcManager implements DeviceHost {
         return result;
     }
 
+   @Override
+    public void enableDtaMode() {
+        //doEnableDtaMode();
+    }
+
+    @Override
+    public void disableDtaMode() {
+        Log.d(TAG,"disableDtaMode : entry");
+        //doDisableDtaMode();
+    }
+
     private native int nativeDeinitialize();
 
     @Override
@@ -124,31 +136,62 @@ public class NativeNfcManager implements DeviceHost {
     }
 
     @Override
-    public boolean sendRawFrame(byte[] data)
-    {
+    public boolean sendRawFrame(byte[] data) {
         return false;
     }
 
     @Override
-    public boolean routeAid(byte[] aid, int route)
-    {
+    public boolean routeAid(byte[] aid, int route, int aidInfo) {
         return false;
     }
 
     @Override
-    public boolean unrouteAid(byte[] aid)
-    {
+    public boolean unrouteAid(byte[] aid) {
        return false;
     }
 
-    private native void doCommitRouting();
+    @Override
+    public boolean commitRouting() {
+        return false;
+    }
+
+    private native int nativeStopReaderAction();
 
     @Override
-    public boolean commitRouting()
-    {
-        doCommitRouting();
-        return true;
+    public void registerT3tIdentifier(byte[] t3tIdentifier) {
+        return;
     }
+
+    @Override
+    public void deregisterT3tIdentifier(byte[] t3tIdentifier) {
+        return;
+    }
+
+    @Override
+    public void clearT3tIdentifiersCache() {
+        return;
+    }
+
+    @Override
+    public int getLfT3tMax() {
+        return 0;
+    }
+
+    @Override
+    public native void doSetScreenState(int screen_state_mask);
+
+    @Override
+    //public native int getNciVersion();
+    public int getNciVersion() {
+      return 1;
+    }
+
+    private native void doEnableDiscovery(int techMask,
+                                          boolean enableLowPowerPolling,
+                                          boolean enableReaderMode,
+                                          boolean enableHostRouting,
+                                          boolean enableP2p,
+                                          boolean restart);
 
     private native int nativeStartDiscover(byte b1, byte b2);
 
@@ -156,8 +199,6 @@ public class NativeNfcManager implements DeviceHost {
     public void enableDiscovery(NfcDiscoveryParameters params, boolean restart) {
         nativeStartDiscover((byte)0, (byte)0);
     }
-
-    private native int nativeStopReaderAction();
 
     @Override
     public void disableDiscovery() {
@@ -253,7 +294,7 @@ public class NativeNfcManager implements DeviceHost {
     public native void nativeAbort();
 
     @Override
-    public void doAbort() {
+    public void doAbort(String msg) {
         nativeAbort();
     }
 
@@ -292,6 +333,12 @@ public class NativeNfcManager implements DeviceHost {
     public void setP2pTargetModes(int modes) {
     }
 
+
+    @Override
+    public void dump(FileDescriptor fd) {
+        //doDump(fd);
+    }
+
     @Override
     public boolean enableScreenOffSuspend() {
         // Snooze mode not supported on NXP silicon
@@ -322,11 +369,11 @@ public class NativeNfcManager implements DeviceHost {
         return DEFAULT_LLCP_RWSIZE;
     }
 
-    private native String nativeDump();
-    @Override
-    public String dump() {
-        return nativeDump();
-    }
+//    private native String nativeDump();
+//    @Override
+//    public String dump() {
+//        return nativeDump();
+//    }
 
     /**
      * Notifies Ndef Message (TODO: rename into notifyTargetDiscovered)
